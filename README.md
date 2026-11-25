@@ -67,3 +67,4 @@ python guard/selftest.py
 - CI 模板为 GitHub Actions；GitLab/自建需等价翻译（保护文件 + required pipeline + 审批规则）。
 - property-based 测试（fast-check / Hypothesis）用于核心纯逻辑，按项目另加，不在本包内。
 - 编排层重试计数必须放在模型不可写的位置，本包只提供校验与决策脚本。
+安装验证记录：本仓库由模板包安装生成，guard 为 required check。
