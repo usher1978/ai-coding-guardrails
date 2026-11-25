@@ -1,0 +1,51 @@
+# 闭卷验收：只在最终验收时由人工触发（workflow_dispatch），防反复提交试探答案。
+# 用例在独立私有仓库；完整命令经 secret 传入，workflow 不暴露用例路径。
+# 前提：AI 账号无 Actions 日志/artifact 读取权限，否则隔离失效（见 setup/github-checklist.md）。
+name: closed-book
+on:
+  workflow_dispatch:
+    inputs:
+      pr_sha:
+        description: 待验收的 PR head SHA（人工填写）
+        required: true
+permissions:
+  contents: read
+jobs:
+  closed-book:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出待验收代码
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.pr_sha }}
+          path: pr
+      - name: 检出 main 的运行器（trusted，不用 PR 里的版本）
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: trusted
+      - name: 拉取闭卷用例（私有仓库，AI 无任何读权限）
+        uses: actions/checkout@v4
+        with:
+          repository: YOUR_ORG/hidden-tests
+          token: ${{ secrets.HIDDEN_TESTS_TOKEN }}
+          path: hidden
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # ↓↓ 按项目替换：安装被测代码的依赖 ↓↓
+      - name: 隔离运行（全部输出进人工日志，AI 只见数量）
+        working-directory: pr
+        run: |
+          python ../trusted/guard/run_closed_book.py \
+            --cmd "${{ secrets.CLOSED_BOOK_CMD }}" \
+            --runner pytest \
+            --human-log ../closed-detail.log \
+            --ai-summary ../closed-summary.json
+      - name: 详情仅存 artifact（人工查看；AI 账号须无 Actions 读权限）
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: closed-detail
+          path: closed-detail.log
+          retention-days: 7

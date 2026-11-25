@@ -1,0 +1,6 @@
+#!/bin/sh
+# 本地预警：可被 --no-verify 跳过，真正把关的是服务端 required CI + 分支保护。
+# 安装：cp ci/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+# 同时在 agent 工具权限层拒绝：--no-verify、push --force、改 core.hooksPath、编辑 .git/hooks。
+python guard/check_protected.py --staged --config guard/config.json || exit 1
+python guard/scan_diff.py --staged --config guard/config.json || exit 1

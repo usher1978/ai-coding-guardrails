@@ -1,0 +1,41 @@
+# Required CI：检查脚本与基线从 main（trusted）读取，不信任 PR 分支里的版本。
+# workflow 文件本身在保护清单（.github/**）内，配合“作废过期审批 + 审批最新 push”兜底。
+# 占位处按项目替换：测试步骤、runner（unittest/pytest/jest）、基线路径。
+name: guard
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出 PR 代码
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          path: pr
+      - name: 检出 main 的检查脚本与基线（trusted）
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.base_ref }}
+          path: trusted
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 保护文件检查
+        working-directory: pr
+        run: python ../trusted/guard/check_protected.py --base "origin/${{ github.base_ref }}" --config ../trusted/guard/config.json
+      - name: 作弊关键字扫描
+        working-directory: pr
+        run: python ../trusted/guard/scan_diff.py --base "origin/${{ github.base_ref }}" --config ../trusted/guard/config.json
+      # ↓↓ 按项目替换：安装依赖 + 运行测试 ↓↓
+      - name: 运行测试（占位，按项目替换）
+        working-directory: pr
+        run: python -m unittest discover -s tests -v
+      # ↓↓ 按项目替换 runner；基线由人工在 main 上生成并提交 ↓↓
+      - name: 测试数量与 skip 检查（基线来自 main）
+        working-directory: pr
+        run: python ../trusted/guard/check_counts.py --runner unittest --baseline ../trusted/guard/baseline.json

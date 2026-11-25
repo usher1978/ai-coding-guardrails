@@ -1,0 +1,19 @@
+# 保护路径必须由人工 owner 审批；配合分支保护 “Require review from Code Owners”。
+# 替换 @YOUR_HUMAN_ACCOUNT 为真实人工账号；AI 账号不得出现在本文件。
+tests/                  @YOUR_HUMAN_ACCOUNT
+test/                   @YOUR_HUMAN_ACCOUNT
+**/*.test.*             @YOUR_HUMAN_ACCOUNT
+**/*.spec.*             @YOUR_HUMAN_ACCOUNT
+pytest.ini              @YOUR_HUMAN_ACCOUNT
+pyproject.toml          @YOUR_HUMAN_ACCOUNT
+setup.cfg               @YOUR_HUMAN_ACCOUNT
+jest.config.*           @YOUR_HUMAN_ACCOUNT
+vitest.config.*         @YOUR_HUMAN_ACCOUNT
+tsconfig*.json          @YOUR_HUMAN_ACCOUNT
+.eslintrc*              @YOUR_HUMAN_ACCOUNT
+eslint.config.*         @YOUR_HUMAN_ACCOUNT
+.pre-commit-config.yaml @YOUR_HUMAN_ACCOUNT
+.github/                @YOUR_HUMAN_ACCOUNT
+guard/                  @YOUR_HUMAN_ACCOUNT
+ci/                     @YOUR_HUMAN_ACCOUNT
+CODEOWNERS              @YOUR_HUMAN_ACCOUNT

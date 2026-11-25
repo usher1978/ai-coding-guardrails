@@ -1,0 +1,20 @@
+# 保护路径必须由人工 owner 审批；启用强制审批后配合 “Require review from Code Owners”。
+# 当前为单人仓库阶段：未启用强制审批（GitHub 不允许自批自己的 PR）。
+# AI 独立账号接入后，按 setup/github-checklist.md 开启审批；AI 账号不得出现在本文件。
+tests/                  @usher1978
+test/                   @usher1978
+**/*.test.*             @usher1978
+**/*.spec.*             @usher1978
+pytest.ini              @usher1978
+pyproject.toml          @usher1978
+setup.cfg               @usher1978
+jest.config.*           @usher1978
+vitest.config.*         @usher1978
+tsconfig*.json          @usher1978
+.eslintrc*              @usher1978
+eslint.config.*         @usher1978
+.pre-commit-config.yaml @usher1978
+.github/                @usher1978
+guard/                  @usher1978
+ci/                     @usher1978
+CODEOWNERS              @usher1978
