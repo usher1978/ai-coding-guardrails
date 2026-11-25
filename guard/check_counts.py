@@ -51,6 +51,14 @@ def parse_jest_json(data: dict) -> dict:
     }
 
 
+def parse_node_test(out: str) -> dict:
+    def grab(key: str) -> int:
+        m = re.search(rf"# {key} (\d+)", out)
+        return int(m.group(1)) if m else 0
+    return {"total": grab("tests"), "inactive": grab("skipped") + grab("todo"),
+            "failed": grab("fail"), "passed": grab("pass")}
+
+
 def run_cmd(cmd, workdir: str, shell: bool = False) -> subprocess.CompletedProcess:
     return subprocess.run(cmd, cwd=workdir, shell=shell, capture_output=True,
                           text=True, encoding="utf-8", errors="replace", timeout=1800)
@@ -66,6 +74,9 @@ def measure(runner: str, workdir: str, tests_dir: str) -> dict:
         r = run_cmd([sys.executable, "-m", "pytest", "-q", "--tb=no"], workdir)
         stats = parse_pytest_run(r.stdout + r.stderr)
         return {"total": total, **stats}
+    if runner == "node-test":
+        p = run_cmd("node --test", workdir, shell=True)
+        return parse_node_test(p.stdout + p.stderr)
     if runner == "jest":
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tf:
             out_file = tf.name
@@ -81,7 +92,7 @@ def measure(runner: str, workdir: str, tests_dir: str) -> dict:
 def main() -> None:
     sys.stdout.reconfigure(encoding="utf-8")
     ap = argparse.ArgumentParser()
-    ap.add_argument("--runner", required=True, choices=["unittest", "pytest", "jest"])
+    ap.add_argument("--runner", required=True, choices=["unittest", "pytest", "jest", "node-test"])
     ap.add_argument("--baseline", required=True)
     ap.add_argument("--write-baseline", action="store_true")
     ap.add_argument("--workdir", default=".")

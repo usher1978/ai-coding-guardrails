@@ -168,15 +168,17 @@ def main():
 
         # S7 pytest/jest 解析器：用真实格式的样例输出做格式级验证
         sys.path.insert(0, str(HERE))
-        from check_counts import parse_pytest_collect, parse_pytest_run, parse_jest_json, parse_unittest
+        from check_counts import parse_pytest_collect, parse_pytest_run, parse_jest_json, parse_unittest, parse_node_test
         ok = (parse_pytest_collect("5 tests collected in 0.02s") == 5
               and parse_pytest_run("1 failed, 3 passed, 1 skipped, 1 xfailed in 0.10s") ==
               {"failed": 1, "inactive": 2, "passed": 3}
               and parse_jest_json({"numTotalTests": 10, "numPendingTests": 2, "numTodoTests": 1,
                                    "numFailedTests": 0}) == {"total": 10, "inactive": 3, "failed": 0}
               and parse_unittest("Ran 3 tests in 0.001s\n\nOK (skipped=1)\n") ==
-              {"total": 3, "inactive": 1, "failed": 0})
-        record("S7 pytest/jest解析器", ok, "格式级验证（真实 runner 集成待目标仓库首跑确认）")
+              {"total": 3, "inactive": 1, "failed": 0}
+              and parse_node_test("TAP version 13\n# tests 8\n# pass 7\n# fail 1\n# skipped 2\n# todo 0\n") ==
+              {"total": 8, "inactive": 2, "failed": 1, "passed": 7})
+        record("S7 pytest/jest/node-test解析器", ok, "格式级验证（真实 runner 集成待目标仓库首跑确认）")
     finally:
         shutil.rmtree(repo, ignore_errors=True)
         (repo.parent / (repo.name + "-baseline.json")).unlink(missing_ok=True)

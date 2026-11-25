@@ -30,7 +30,7 @@ ai-coding-guardrails/
 │   ├── config.json                保护清单 + 扫描规则（本身受保护）
 │   ├── check_protected.py         保护文件检查
 │   ├── scan_diff.py               作弊关键字扫描
-│   ├── check_counts.py            测试数量/skip 检查（unittest/pytest/jest）
+│   ├── check_counts.py            测试数量/skip 检查（unittest/pytest/jest/node-test）
 │   ├── status_gate.py             状态块校验 + 停止规则
 │   ├── run_closed_book.py         闭卷隔离运行器
 │   └── selftest.py                自检（真实跑各道防线）

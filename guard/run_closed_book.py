@@ -11,7 +11,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from check_counts import parse_unittest, parse_pytest_run, parse_jest_json
+from check_counts import parse_unittest, parse_pytest_run, parse_jest_json, parse_node_test
 
 
 def summarize(runner: str, stdout: str, stderr: str) -> dict:
@@ -29,6 +29,8 @@ def summarize(runner: str, stdout: str, stderr: str) -> dict:
             return parse_jest_json(json.loads(stdout))
         except json.JSONDecodeError:
             return {"total": None, "failed": None, "inactive": None}
+    if runner == "node-test":
+        return parse_node_test(out)
     raise ValueError(runner)
 
 
@@ -36,7 +38,7 @@ def main() -> None:
     sys.stdout.reconfigure(encoding="utf-8")
     ap = argparse.ArgumentParser()
     ap.add_argument("--cmd", required=True, help="完整测试命令（建议经 CI secret 传入，避免泄漏路径）")
-    ap.add_argument("--runner", required=True, choices=["unittest", "pytest", "jest"])
+    ap.add_argument("--runner", required=True, choices=["unittest", "pytest", "jest", "node-test"])
     ap.add_argument("--human-log", required=True, help="完整输出，仅人工可见")
     ap.add_argument("--ai-summary", required=True, help="数量摘要，AI 可见")
     ap.add_argument("--timeout", type=int, default=900)
